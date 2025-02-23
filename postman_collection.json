@@ -1,0 +1,94 @@
+{
+    "info": {
+      "name": "URL Shortener API",
+      "_postman_id": "bdf5d1d0-15b4-44c3-9a2f-fd3dbebc8ed5",
+      "description": "Collection for testing the URL shortener API"
+    },
+    "item": [
+      {
+        "name": "Shorten URL",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"longUrl\": \"https://www.example.com\"}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/shorten",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["shorten"]
+          }
+        },
+        "response": [
+          {
+            "code": 201,
+            "body": "{\"shortUrl\": \"http://localhost:3000/xyz123\"}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Get Original URL",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:3000/xyz123",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["xyz123"]
+          }
+        },
+        "response": [
+          {
+            "code": 302,
+            "header": [
+              {
+                "key": "Location",
+                "value": "https://www.example.com"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Get Analytics",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:3000/analytics/xyz123",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["analytics", "xyz123"]
+          }
+        },
+        "response": [
+          {
+            "code": 200,
+            "body": "{\"shortCode\": \"xyz123\", \"longUrl\": \"https://www.example.com\", \"visitCount\": 10}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
