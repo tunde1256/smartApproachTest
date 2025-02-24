@@ -52,7 +52,8 @@ Setup Environment Variables
 Create a .env file in the root directory and add:
 
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/urlshortener
+MONGO_URI=mongodb+srv://ogunremitunde12:ogunremitunde12@cluster0.g3bnlww.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
 BASE_URL=http://localhost:5000
 
 Run the Application
