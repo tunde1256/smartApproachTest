@@ -8,5 +8,5 @@ const db_1 = require("./config/db");
 const env_1 = require("./config/env");
 (0, db_1.connectDB)();
 app_1.default.listen(env_1.config.PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${env_1.config.PORT}`);
+    console.log(`Server running on http://localhost:${env_1.config.PORT}`);
 });

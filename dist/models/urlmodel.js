@@ -8,7 +8,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const UrlSchema = new mongoose_1.default.Schema({
     longUrl: { type: String, required: true },
     shortCode: { type: String, required: true, unique: true },
-    createdAt: { type: Date, default: Date.now },
     visitCount: { type: Number, default: 0 }
-});
+}, { timestamps: true });
 exports.Url = mongoose_1.default.model("Url", UrlSchema);

@@ -65,7 +65,7 @@ describe("URL Shortener API", () => {
     const res = await request(app).get(`/analytics/${shortCode}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("shortCode", shortCode);
-    expect(res.body).toHaveProperty("visitCount"); // Update to visitCount
+    expect(res.body).toHaveProperty("visitCount"); 
   });
 
   it("should return 404 for analytics with invalid short code", async () => {

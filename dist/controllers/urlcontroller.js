@@ -28,24 +28,27 @@ exports.shortenUrl = [
         }
         try {
             const liveStatusMessage = yield (0, isUrlLive_1.isUrlLive)(longUrl);
-            // Check if the message returned from isUrlLive contains "live and reachable"
             if (!liveStatusMessage.includes("live and reachable")) {
                 return res.status(400).json({ error: liveStatusMessage });
             }
-            const existingShortCode = yield redis_1.default.get(longUrl);
-            if (existingShortCode) {
-                const shortUrl = `${env_1.config.BASE_URL}/${existingShortCode}`;
+            const existingUrl = yield urlmodel_1.Url.findOne({ longUrl });
+            if (existingUrl) {
+                const shortUrl = `${env_1.config.BASE_URL}/${existingUrl.shortCode}`;
                 return res.status(201).json({ shortUrl });
             }
-            const shortCode = (0, generateShortCode_1.generateShortCode)();
+            let shortCode = (0, generateShortCode_1.generateShortCode)();
+            let urlExists = yield urlmodel_1.Url.findOne({ shortCode });
+            while (urlExists) {
+                shortCode = (0, generateShortCode_1.generateShortCode)();
+                urlExists = yield urlmodel_1.Url.findOne({ shortCode });
+            }
             const shortUrl = `${env_1.config.BASE_URL}/${shortCode}`;
-            const newUrl = new urlmodel_1.Url({ longUrl, shortCode });
+            const newUrl = new urlmodel_1.Url({ longUrl, shortCode, visitCount: 0 });
             yield newUrl.save();
-            yield redis_1.default.set(longUrl, shortCode, 'EX', 3600);
             return res.status(201).json({ shortUrl });
         }
         catch (error) {
-            console.error(error);
+            console.error('Error during URL shortening:', error);
             return res.status(500).json({ error: "Server Error" });
         }
     })
@@ -95,27 +98,24 @@ const getAnalytics = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     const { shortCode } = req.params;
     try {
         let cachedVisitCount = yield redis_1.default.get(`visitCount:${shortCode}`);
-        console.log(`Checking Redis cache for visit count of shortCode: ${shortCode}`);
         if (cachedVisitCount) {
-            console.log(`Cache hit: Visit count found in Redis: ${cachedVisitCount}`);
+            const url = yield urlmodel_1.Url.findOne({ shortCode });
+            if (!url) {
+                return res.status(404).json({ error: "URL not found" });
+            }
             return res.json({
                 shortCode,
                 visitCount: cachedVisitCount,
                 message: "Data retrieved from cache",
+                longUrl: url.longUrl,
             });
         }
-        console.log(`Cache miss: Fetching visit count from database for shortCode: ${shortCode}`);
         const url = yield urlmodel_1.Url.findOne({ shortCode });
         if (!url) {
-            console.log(`URL not found for shortCode: ${shortCode}`);
             return res.status(404).json({ error: "URL not found" });
         }
-        console.log(`Visit count in DB before increment: ${url.visitCount}`);
-        url.visitCount += 1;
         yield url.save();
-        console.log(`Visit count in DB after increment: ${url.visitCount}`);
         yield redis_1.default.set(`visitCount:${shortCode}`, url.visitCount.toString(), "EX", 3600);
-        console.log(`Updated Redis cache with new visit count: ${url.visitCount}`);
         return res.json({
             shortCode,
             longUrl: url.longUrl,
